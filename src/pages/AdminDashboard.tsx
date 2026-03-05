@@ -15,26 +15,50 @@ import {
     Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export function AdminDashboard() {
     const [leads, setLeads] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchLeads = async () => {
+        const fetchLeads = () => {
             try {
-                const response = await fetch('http://localhost:3001/api/leads/u4');
-                if (response.ok) {
-                    const data = await response.json();
-                    setLeads(data);
-                }
+                // Listen to leads from Firebase for this specific tenant
+                const leadsQuery = query(
+                    collection(db, 'leads'),
+                    where('tenantId', '==', 'ROOF_001')
+                );
+
+                const unsubscribe = onSnapshot(leadsQuery, (snapshot) => {
+                    const fetchedLeads = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    // Sort by newest first since we don't have a complex index yet
+                    fetchedLeads.sort((a: any, b: any) => {
+                        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+                        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+                        return timeB - timeA;
+                    });
+
+                    setLeads(fetchedLeads);
+                    setIsLoading(false);
+                });
+
+                return unsubscribe;
             } catch (error) {
                 console.error("Failed to fetch leads:", error);
-            } finally {
                 setIsLoading(false);
             }
         };
-        fetchLeads();
+
+        const unsubscribe = fetchLeads();
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, []);
 
     return (
@@ -144,7 +168,7 @@ export function AdminDashboard() {
                                                 <td className="px-6 py-4 text-sm text-white/60">{lead.phone || 'N/A'}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lead.status === 'New' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' :
-                                                            'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                                                        'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                                                         }`}>
                                                         {lead.status}
                                                     </span>

@@ -1,7 +1,7 @@
 import { MapPin, Star, ShieldCheck, ArrowRight, Phone, DollarSign } from "lucide-react";
 import { Button } from "./ui/Button";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export function Hero() {
   const [address, setAddress] = useState("");
@@ -42,8 +42,18 @@ export function Hero() {
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-grey">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#1A1A1A 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+      >
+        <source src="/Video_Generation_for_Website_Beauty.mp4" type="video/mp4" />
+      </video>
+
+      <div className="absolute inset-0 bg-charcoal/40 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">

@@ -14,7 +14,7 @@ export function ContactForm() {
         setIsSubmitting(true);
 
         try {
-            // Connect to Amaura's 'conversations' collection
+            // Log as a Conversation
             await addDoc(collection(db, 'conversations'), {
                 clientId: 'u4', // Elite Shield Roofing client ID
                 contactName: formData.name,
@@ -32,6 +32,18 @@ export function ContactForm() {
                         sender: 'contact'
                     }
                 ]
+            });
+
+            // Log as a Lead in the CRM Pipeline
+            await addDoc(collection(db, 'leads'), {
+                clientId: 'u4',
+                tenantId: 'ROOF_001',
+                name: formData.name,
+                email: formData.email,
+                message: formData.message,
+                status: 'New',
+                estimatedValue: 0, // Placeholder until qualified
+                createdAt: serverTimestamp()
             });
 
             setIsSuccess(true);

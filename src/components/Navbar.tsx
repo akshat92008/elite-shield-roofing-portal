@@ -14,7 +14,7 @@ export function Navbar() {
               Elite Shield <span className="text-safety-orange">Roofing</span>
             </span>
           </div>
-          
+
           <div className="hidden md:flex items-center gap-8">
             <a href="#services" className="text-sm font-medium hover:text-safety-orange transition-colors">Services</a>
             <a href="#advantage" className="text-sm font-medium hover:text-safety-orange transition-colors">The Advantage</a>
@@ -24,7 +24,9 @@ export function Navbar() {
                 <span className="text-xs text-charcoal/60 font-medium uppercase tracking-wider">24/7 Emergency</span>
                 <a href="tel:1-800-ROOFING" className="font-display font-bold text-lg">1-800-ROOFING</a>
               </div>
-              <Button>Get a Quote</Button>
+              <a href="#contact">
+                <Button>Get a Quote</Button>
+              </a>
             </div>
           </div>
 
