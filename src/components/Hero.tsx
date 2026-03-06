@@ -11,31 +11,30 @@ export function Hero() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleStartEstimate = async (e: React.FormEvent) => {
+  const handleStartEstimate = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      await addDoc(collection(db, 'leads'), {
-        clientId: 'u4',
-        tenantId: 'ROOF_001',
-        name: 'Roofing Lead: ' + address.split(',')[0],
-        property_address: address,
-        phone: phone,
-        estimated_value: Math.floor(15000 + Math.random() * 10000),
-        monthly_payment: Math.floor(199 + Math.random() * 100),
-        status: 'New',
-        createdAt: serverTimestamp()
-      });
-
-      setIsSuccess(true);
-      setAddress("");
-      setPhone("");
-    } catch (error) {
+    // Fire and forget save to Firebase
+    addDoc(collection(db, 'leads'), {
+      clientId: 'u4',
+      tenantId: 'ROOF_001',
+      name: 'Roofing Lead: ' + address.split(',')[0],
+      property_address: address,
+      phone: phone,
+      estimated_value: Math.floor(15000 + Math.random() * 10000),
+      monthly_payment: Math.floor(199 + Math.random() * 100),
+      status: 'New',
+      createdAt: serverTimestamp()
+    }).catch(error => {
       console.error("Failed to submit lead:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
+
+    // Optimistic UI update
+    setIsSuccess(true);
+    setAddress("");
+    setPhone("");
+    setIsSubmitting(false);
   };
 
   return (

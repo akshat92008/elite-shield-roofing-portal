@@ -9,50 +9,50 @@ export function ContactForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        try {
-            // Log as a Conversation
-            await addDoc(collection(db, 'conversations'), {
-                clientId: 'u4', // Elite Shield Roofing client ID
-                contactName: formData.name,
-                email: formData.email,
-                channel: 'email',
-                unread: true,
-                avatar: formData.name.charAt(0).toUpperCase(),
-                tenantId: 'ROOF_001',
-                updatedAt: serverTimestamp(),
-                messages: [
-                    {
-                        id: Date.now().toString(),
-                        text: formData.message,
-                        time: new Date().toLocaleTimeString(),
-                        sender: 'contact'
-                    }
-                ]
-            });
+        // Log as a Conversation
+        const conversationPromise = addDoc(collection(db, 'conversations'), {
+            clientId: 'u4', // Elite Shield Roofing client ID
+            contactName: formData.name,
+            email: formData.email,
+            channel: 'email',
+            unread: true,
+            avatar: formData.name.charAt(0).toUpperCase(),
+            tenantId: 'ROOF_001',
+            updatedAt: serverTimestamp(),
+            messages: [
+                {
+                    id: Date.now().toString(),
+                    text: formData.message,
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'contact'
+                }
+            ]
+        });
 
-            // Log as a Lead in the CRM Pipeline
-            await addDoc(collection(db, 'leads'), {
-                clientId: 'u4',
-                tenantId: 'ROOF_001',
-                name: formData.name,
-                email: formData.email,
-                message: formData.message,
-                status: 'New',
-                estimatedValue: 0, // Placeholder until qualified
-                createdAt: serverTimestamp()
-            });
+        // Log as a Lead in the CRM Pipeline
+        const leadPromise = addDoc(collection(db, 'leads'), {
+            clientId: 'u4',
+            tenantId: 'ROOF_001',
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+            status: 'New',
+            estimatedValue: 0, // Placeholder until qualified
+            createdAt: serverTimestamp()
+        });
 
-            setIsSuccess(true);
-            setFormData({ name: '', email: '', message: '' });
-        } catch (error) {
+        Promise.all([conversationPromise, leadPromise]).catch(error => {
             console.error("Error sending message:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+        });
+
+        // Optimistic UI updates
+        setIsSuccess(true);
+        setFormData({ name: '', email: '', message: '' });
+        setIsSubmitting(false);
     };
 
     return (
